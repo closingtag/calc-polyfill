@@ -60,25 +60,8 @@ fillcalc v0.0.1 - (c) Robert Weber, freely distributable under the terms of the 
         });
       }
     },
-    
-    style: {
 
-      getty: function elementCurrentStyle(element, styleName){
-    if (element.currentStyle){
-        var i = 0, temp = "", changeCase = false;
-        for (i = 0; i < styleName.length; i++)
-            if (styleName[i] != '-'){
-                temp += (changeCase ? styleName[i].toUpperCase() : styleName[i]);
-                changeCase = false;
-            } else {
-                changeCase = true;
-            }
-        styleName = temp;
-        return element.currentStyle[styleName];
-    } else {
-        return getComputedStyle(element, null).getPropertyValue(styleName);
-    }
-},
+    style: {
       get: function(el, prop) {
         if (el.currentStyle) {
           return el.currentStyle[util.string.camelize(prop)];
