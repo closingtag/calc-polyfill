@@ -25,7 +25,7 @@ fillcalc v0.0.1 - (c) Robert Weber, freely distributable under the terms of the 
   NEW_LINE           = /\n/g,
   CALC_RULE          = /\s?(\-webkit\-)?calc/,
   CALC_EXTR_RULE     = /\s?(\-webkit\-)?calc\((.*?)\)/,
-  MATH_EXP           = /[+-\/*]?\d+(px|%|em|rem)?/g,
+  MATH_EXP           = /[\+\-\/\*]?\d+(px|%|em|rem)?/g,
   PERCENT            = /\d+%/,
   PIXEL              = /(\d+)px/,
   REMEM              = /\d+r?em/,
@@ -37,12 +37,11 @@ fillcalc v0.0.1 - (c) Robert Weber, freely distributable under the terms of the 
   // Utilities
 
   util = {
-  // http://stackoverflow.com/questions/2790001/fixing-javascript-array-functions-in-internet-explorer-indexof-foreach-etc
+    // http://stackoverflow.com/questions/2790001/fixing-javascript-array-functions-in-internet-explorer-indexof-foreach-etc
     arr: {
       forEach: function (arr, fn, opt) {
-        var i;
         if (!('forEach' in Array.prototype)) {
-          for (i = 0, i < arr.length; i++;) {
+          for (var i= 0, n= arr.length; i<n; i++) {
             if (i in arr) {
               fn.call(opt, arr[i], i, arr);
             }
@@ -67,11 +66,23 @@ fillcalc v0.0.1 - (c) Robert Weber, freely distributable under the terms of the 
       get: function (el, prop) {
         if (el.currentStyle) {
           return el.currentStyle[util.string.camelize(prop)];
-        } else if (document.defaultView && document.defaultView.getComputedStyle) {
-          return document.defaultView.getComputedStyle(el,null).getPropertyValue(prop);
+        } else if (doc.defaultView && doc.defaultView.getComputedStyle) {
+          return doc.defaultView.getComputedStyle(el,null).getPropertyValue(prop);
         } else {
           return el.style[util.string.camelize(prop)];
         }
+      },
+      get_font_size: function (obj) {
+        var font_size;
+        var test = doc.createElement('span');
+        test.innerHTML='&nbsp;';
+        test.style.position="absolute";
+        test.style.lineHeight="1";
+        test.style.fontSize="1em";
+        obj.appendChild(test);
+        font_size = test.offsetHeight;
+        obj.removeChild(test);
+        return font_size;
       }
     },
 
@@ -236,7 +247,6 @@ fillcalc v0.0.1 - (c) Robert Weber, freely distributable under the terms of the 
     rules = css_text.split('}');
 
     util.arr.forEach(rules, function (rule){
-
       var selector = rule.split('{')[0];
 
       var dom_elements = selector.length > 1 ? doc.querySelectorAll(selector) : '';
@@ -290,19 +300,20 @@ fillcalc v0.0.1 - (c) Robert Weber, freely distributable under the terms of the 
 
         if ( match.match(PERCENT) ) {
           reference_value = obj.element.parentNode.clientWidth;
-          modifier = parseInt(match.replace(/%/, EMPTY), 10) / 100;
 
+          modifier = parseInt(match, 10) / 100;
           formula = formula.replace(match, reference_value * modifier);
         }
 
         if ( match.match(EM) ) {
-          if ( util.style.get( obj.element , "font-size").match(PERCENT) ) {
-            reference_value = 16 * parseInt(util.style.get( obj.element , "font-size").replace(/%/, EMPTY), 10) / 100;
+
+          if(obj.element.currentStyle) {
+            reference_value = util.style.get_font_size(obj.element);
           } else {
             reference_value = parseInt( util.style.get( obj.element, "font-size").replace(/px/, EMPTY ), 10);
           }
-
-          modifier = parseInt(match.replace(EM, EMPTY), 10);
+          
+          modifier = parseInt(match, 10);
           formula = formula.replace(match, reference_value * modifier);
         }
 
@@ -313,7 +324,7 @@ fillcalc v0.0.1 - (c) Robert Weber, freely distributable under the terms of the 
             reference_value = parseInt( util.style.get( doc.body , "font-size").replace(/px/, EMPTY ), 10);
           }
 
-          modifier = parseInt(match.replace(REM, EMPTY), 10);
+          modifier = parseInt(match, 10);
           formula = formula.replace(match, reference_value * modifier);
         }
       });
