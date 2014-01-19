@@ -302,7 +302,7 @@ fillcalc v0.0.1 - (c) Robert Weber, freely distributable under the terms of the 
             reference_value = parseInt( util.style.get( obj.element, "font-size").replace(/px/, EMPTY ), 10);
           }
 
-          modifier = parseInt(match.replace(/EM/, EMPTY), 10);
+          modifier = parseInt(match.replace(EM, EMPTY), 10);
           formula = formula.replace(match, reference_value * modifier);
         }
 
@@ -313,7 +313,7 @@ fillcalc v0.0.1 - (c) Robert Weber, freely distributable under the terms of the 
             reference_value = parseInt( util.style.get( doc.body , "font-size").replace(/px/, EMPTY ), 10);
           }
 
-          modifier = parseInt(match.replace(/REM/, EMPTY), 10);
+          modifier = parseInt(match.replace(REM, EMPTY), 10);
           formula = formula.replace(match, reference_value * modifier);
         }
       });
