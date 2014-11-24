@@ -14,6 +14,7 @@ fillcalc v0.0.1 - (c) Robert Weber, freely distributable under the terms of the 
   // Vars
 
   var elements = {
+      onload: [],
       onwinresize: [],
       ontextresize: []
   },
@@ -27,7 +28,7 @@ fillcalc v0.0.1 - (c) Robert Weber, freely distributable under the terms of the 
   CALC_EXTR_RULE     = /\s?(\-webkit\-)?calc\((.*?)\)/,
   MATH_EXP           = /[\+\-\/\*]?\d+(px|%|em|rem)?/g,
   PERCENT            = /\d+%/,
-  PIXEL              = /(\d+)px/,
+  PIXEL              = /(\d+)px/g,
   REMEM              = /\d+r?em/,
   REM                = /\d+rem/,
   EM                 = /\d+em/,
@@ -59,6 +60,12 @@ fillcalc v0.0.1 - (c) Robert Weber, freely distributable under the terms of the 
         return str.replace(/\-(\w)/g, function (str, letter){
           return letter.toUpperCase();
         });
+      },
+      trim: function(str) {
+        
+        var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
+
+        return  !String.prototype.trim ? str.replace(rtrim, '') : str.trim();
       }
     },
 
@@ -283,6 +290,14 @@ fillcalc v0.0.1 - (c) Robert Weber, freely distributable under the terms of the 
               values: values
             });
           }
+
+          if ( values.match(CALC_EXTR_RULE)[2].match(PIXEL) ) {
+            elements.onload.push({
+              element: dom_elements[i],
+              prop: prop,
+              values: values
+            });
+          }
         }
       }
 
@@ -295,6 +310,7 @@ fillcalc v0.0.1 - (c) Robert Weber, freely distributable under the terms of the 
     var result;
 
     if (matches) {
+
       util.arr.forEach(matches, function (match){
         var reference_value, modifier, fontsize;
 
@@ -328,13 +344,14 @@ fillcalc v0.0.1 - (c) Robert Weber, freely distributable under the terms of the 
           formula = formula.replace(match, reference_value * modifier);
         }
       });
+
     }
 
     try {
       if ( formula.match(ONLYNUMBERS) ) {
         result = eval( formula );
       }
-      obj.element.style[util.string.camelize(obj.prop)] = obj.values.replace(CALC_EXTR_RULE, " " + result + "px");
+      obj.element.style[util.string.trim(util.string.camelize(obj.prop))] = obj.values.replace(CALC_EXTR_RULE, " " + result + "px");
     } catch(e) {}
   },
 
@@ -352,9 +369,19 @@ fillcalc v0.0.1 - (c) Robert Weber, freely distributable under the terms of the 
 
     get_style_sheets();
 
+
+    if (elements.onload.length !== 0) {
+
+      util.arr.forEach(elements.onload, function (element){
+
+        calc(element);
+      });
+    }
+
     if (elements.onwinresize.length !== 0) {
 
       util.arr.forEach(elements.onwinresize, function (element){
+
         calc(element);
 
         util.event.add(win, 'resize', function (){
