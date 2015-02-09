@@ -18,16 +18,16 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 	CALC_RULE = '^(\\s*?[\\s\\S]*):(\\s*?[\\s\\S]*?((\\-(webkit|moz)\\-)?calc\\(([\\s\\S]+)\\))[\\s\\S]*)?$',
 	CSSRULES = '((\\s*?@media[\\s\\S]*?){([\\s\\S]*?)}\\s*?})|(([\\s\\S]*?){([\\s\\S]*?)})',
 
-    KEYFRAMES = new RegExp('((@.*?keyframes [\\s\\S]*?){([\\s\\S]*?}\\s*?)})', 'gi'),
-    FONTFACE = new RegExp('((@font-face\\s*?){([\\s\\S]*?)})', 'gi'),
-    COMMENTS = new RegExp('(\\/\\*[\\s\\S]*?\\*\\/)', 'gi'),
-    IMPORTS = new RegExp('@import .*?;', 'gi'),
-    CHARSET = new RegExp('@charset .*?;', 'gi'),
+	KEYFRAMES = new RegExp('((@.*?keyframes [\\s\\S]*?){([\\s\\S]*?}\\s*?)})', 'gi'),
+	FONTFACE = new RegExp('((@font-face\\s*?){([\\s\\S]*?)})', 'gi'),
+	COMMENTS = new RegExp('(\\/\\*[\\s\\S]*?\\*\\/)', 'gi'),
+	IMPORTS = new RegExp('@import .*?;', 'gi'),
+	CHARSET = new RegExp('@charset .*?;', 'gi'),
 
 	PERCENT = /\d+%/,
 	PT = /\d+pt/,
-    PIXEL = /(\d+)px/g,
-  	REMEM = /\d+r?em/,
+	PIXEL = /(\d+)px/g,
+	REMEM = /\d+r?em/,
 	REM = /\d+rem/,
 	EM = /\d+em/,
 	MATH_EXP = /[\+\-\/\*]?\d+(px|%|em|rem)?/g,
@@ -63,24 +63,24 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 			var len = arr.length >>> 0;
 
 			from = Number(from) || 0;
-    		from = (from < 0) ? Math.ceil(from) : Math.floor(from);
+			from = (from < 0) ? Math.ceil(from) : Math.floor(from);
 
-    		if (from < 0) {
-      			from += len;
-    		}
+			if (from < 0) {
+				from += len;
+			}
 
-    		for (; from < len; from++) {
-    			if (from in arr && arr[from] === el)
-        			return from;
-    		}
+			for (; from < len; from++) {
+				if (from in arr && arr[from] === el)
+					return from;
+			}
 
-    		return -1;
+			return -1;
 		},
 
 		// http://www.quirksmode.org/dom/getstyles.html
 		getStyle: function ( el, prop ) {
 
-      		if (el.currentStyle) {
+			if (el.currentStyle) {
 
 				return el.currentStyle[utilities.camelize(prop)];
 			} else if (doc.defaultView && doc.defaultView.getComputedStyle) {
@@ -132,20 +132,20 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 			var createControlElement = function () {
 
 				el = doc.createElement('span');
-        		el.id = 'text-resize-control';
-        		el.innerHTML = '&nbsp;';
-        		el.style.position = 'absolute';
-        		el.style.left = '-9999px';
-        		el.style.lineHeight = '1em';
-        		el.style.fontSize = '1em';
+				el.id = 'text-resize-control';
+				el.innerHTML = '&nbsp;';
+				el.style.position = 'absolute';
+				el.style.left = '-9999px';
+				el.style.lineHeight = '1em';
+				el.style.fontSize = '1em';
 
-        		doc.body.insertBefore(el, doc.body.firstChild);
-        		currentSize = el.offsetHeight;
-      		},
+				doc.body.insertBefore(el, doc.body.firstChild);
+				currentSize = el.offsetHeight;
+			},
 
-      		detectChange = function () {
+			detectChange = function () {
 
-      			var now = el.offsetHeight;
+				var now = el.offsetHeight;
 
 				if ( currentSize === now ) {
 
@@ -162,72 +162,72 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 				}
 
 				win.requestAnimationFrame(detectChange);
-      		};
+			};
 
 			createControlElement();
 			win.requestAnimationFrame(detectChange);
 		}
 	};
 
-    var calcTest = function() {
+	var calcTest = function() {
 
-    	var el = document.createElement('div');
+		var el = document.createElement('div');
 
-    	el.style.cssText = 'width: -calc-calc(10px); width: -webkit-calc(10px); width: calc(10px)';
+		el.style.cssText = 'width: -moz-calc(10px); width: -webkit-calc(10px); width: calc(10px)';
 
-    	return !!el.style.length;
-    },
+		return !!el.style.length;
+	},
 
 
-    getStyleSheets = function () {
+	getStyleSheets = function () {
 
-    	var stylesheets = [];
-    	var index = 0;
-    	var len = doc.styleSheets.length;
-    	var stylesheet;
+		var stylesheets = [];
+		var index = 0;
+		var len = doc.styleSheets.length;
+		var stylesheet;
 
-    	for (; index < len; index++) {
+		for (; index < len; index++) {
 
-    		stylesheet = doc.styleSheets[index];
+			stylesheet = doc.styleSheets[index];
 
-    		if (stylesheet.href && stylesheet.href !== EMPTY) {
-    			stylesheets.push(stylesheet.href);
-    		}
-    	}
+			if (stylesheet.href && stylesheet.href !== EMPTY) {
+				stylesheets.push(stylesheet.href);
+			}
+		}
 
-    	if ( stylesheets.length > 0 ) {
+		if ( stylesheets.length > 0 ) {
 
-    		loadStylesheets(stylesheets);
-    	}
-  	},
+			loadStylesheets(stylesheets);
+		}
+	},
 
-  	loadStylesheets = function(urls){
-  		var xhr;
-    	var index = 0;
-    	var len = urls.length;
-    	var cssTexts = [];
+	loadStylesheets = function(urls){
+		var xhr;
+		var index = 0;
+		var len = urls.length;
+		var cssTexts = [];
 
-      	if ( win.XMLHttpRequest ) {
+		if ( win.XMLHttpRequest ) {
 
-      		xhr = new XMLHttpRequest();
-      	}
-      	else {
+			xhr = new XMLHttpRequest();
+		}
+		else {
 
-      		try {
+			try {
 
-      			xhr = new ActiveXObject('Microsoft.XMLHTTP');
+				xhr = new ActiveXObject('Microsoft.XMLHTTP');
 
-      		} catch(e) {
+			} catch(e) {
 
-      			xhr = null;
-      		}
-      	}
+				xhr = null;
+			}
+		}
 
-      	if (xhr) {
+		if (xhr) {
 
-      		for (; index < len; index++) {
+			for (; index < len; index++) {
 
-      			try {
+				try {
 
 					xhr.open('GET', urls[index], false);
 					xhr.send();
@@ -236,48 +236,48 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 						cssTexts.push( xhr.responseText );
 					}
 
-      			} catch(e) {
-      				console.log('Error making request for file ' + urls[index] + ': ' + e.message);
-      			}
+				} catch(e) {
+					console.log('Error making request for file ' + urls[index] + ': ' + e.message);
+				}
 
-      		}
-      	}
+			}
+		}
 
-      	if (cssTexts.length > 0 ) {
-      		parseStylesheets(cssTexts);
-      	}
-  	},
+		if (cssTexts.length > 0 ) {
+			parseStylesheets(cssTexts);
+		}
+	},
 
-  	parseStylesheets = function(texts) {
-    	var index = 0;
-    	var len = texts.length;
+	parseStylesheets = function(texts) {
+		var index = 0;
+		var len = texts.length;
 
-    	for (; index < len; index++) {
+		for (; index < len; index++) {
 
-    		texts[index] = texts[index].replace(COMMENTS, EMPTY).replace(CHARSET, EMPTY).replace(IMPORTS, EMPTY).replace(KEYFRAMES, EMPTY).replace(FONTFACE, EMPTY);
+			texts[index] = texts[index].replace(COMMENTS, EMPTY).replace(CHARSET, EMPTY).replace(IMPORTS, EMPTY).replace(KEYFRAMES, EMPTY).replace(FONTFACE, EMPTY);
 
-    		dotheCalc( parseCSS(texts[index]) );
-    	}
-  	},
+			dotheCalc( parseCSS(texts[index]) );
+		}
+	},
 
-  	removeStyles = function ( elements ) {
-  		var index = 0;
-  		var len = elements.length;
+	removeStyles = function ( elements ) {
+		var index = 0;
+		var len = elements.length;
 
 		for (; index < len; index++) {
 
 			elements[index].removeAttribute('style');
 		}
-  	},
+	},
 
-  	parseCSS = function( css, media ) {
+	parseCSS = function( css, media ) {
 
-    	var index, len, regex, result, selector, rules, calc, elements, obj, mediaQueryStyleSheet, refSheet;
-    	var arr = [];
+		var index, len, regex, result, selector, rules, calc, elements, obj, mediaQueryStyleSheet, refSheet;
+		var arr = [];
 
-    	media = media || '';
+		media = media || '';
 
-    	regex = new RegExp(CSSRULES, 'gi');
+		regex = new RegExp(CSSRULES, 'gi');
 
 		while ( true ) {
 
@@ -341,33 +341,33 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 		}
 
 		return arr;
-  	},
+	},
 
-  	dotheCalc = function( calcRules ){
-    	var index = 0;
-    	var len = calcRules.length;
-    	var obj;
+	dotheCalc = function( calcRules ){
+		var index = 0;
+		var len = calcRules.length;
+		var obj;
 
-    	var calc = function( obj ) {
-    		var i = 0;
-    		var len = obj.elements.length;
-    		var refValue, modifier, matches, l, j, result;
+		var calc = function( obj ) {
+			var i = 0;
+			var len = obj.elements.length;
+			var refValue, modifier, matches, l, j, result;
 
-    		var formula = obj.formula.replace(PIXEL, PLACEHOLDER);
+			var formula = obj.formula.replace(PIXEL, PLACEHOLDER);
 
-    		for (; i < len; i++) {
+			for (; i < len; i++) {
 
-    			matches = formula.match(MATH_EXP);
-    			l = matches.length;
-    			j = 0;
+				matches = formula.match(MATH_EXP);
+				l = matches.length;
+				j = 0;
 
-    			for (; j < l; j++) {
+				for (; j < l; j++) {
 
-    				if ( matches[j].match(PERCENT) ) {
+					if ( matches[j].match(PERCENT) ) {
 
-          				refValue = obj.elements[i].parentNode.clientWidth;
-          				modifier = parseInt(matches[j], 10) / 100;
-        			}
+						refValue = obj.elements[i].parentNode.clientWidth;
+						modifier = parseInt(matches[j], 10) / 100;
+					}
 
 					if ( matches[j].match(EM) ) {
 
@@ -403,7 +403,7 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 						formula = formula.replace(matches[j], refValue * modifier);
 					}
 
-    			}
+				}
 
 				try {
 
@@ -416,72 +416,72 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 				}
 				catch(e) {}
 
-    		}
-    	};
+			}
+		};
 
-    	for (; index < len; index++) {
+		for (; index < len; index++) {
 
-    		obj = calcRules[index];
+			obj = calcRules[index];
 
-    		if ( obj.onresize && utilities.indexOf( onWindowResize, obj ) === -1 ) {
+			if ( obj.onresize && utilities.indexOf( onWindowResize, obj ) === -1 ) {
 
-    			onWindowResize.push(obj);
-    		}
+				onWindowResize.push(obj);
+			}
 
-    		if ( obj.ontextresize && utilities.indexOf( onTextResize, obj ) === -1 ) {
+			if ( obj.ontextresize && utilities.indexOf( onTextResize, obj ) === -1 ) {
 
-    			onTextResize.push(obj);
-    		}
+				onTextResize.push(obj);
+			}
 
-    		if ( obj.media !== EMPTY ) {
+			if ( obj.media !== EMPTY ) {
 
-    			if ( win.matchMedia && win.matchMedia(obj.media).matches ) {
+				if ( win.matchMedia && win.matchMedia(obj.media).matches ) {
 
-    				calc(obj);
-    			}
-    			else {
+					calc(obj);
+				}
+				else {
 
-    				removeStyles( obj.elements );
-    			}
-    		}
-    		else {
+					removeStyles( obj.elements );
+				}
+			}
+			else {
 
-    			calc(obj);
-    		}
-    	}
+				calc(obj);
+			}
+		}
 
-  	};
+	};
 
-  	contentLoaded(win, function(){
+	contentLoaded(win, function(){
 
-  		if ( calcTest() ) {
-  			return;
-  		}
+		if ( calcTest() ) {
+			return;
+		}
 
-  		getStyleSheets();
+		getStyleSheets();
 
-  		if ( onTextResize.length > 0 ) {
+		if ( onTextResize.length > 0 ) {
 
 			utilities.textResize(function(){
 
 				dotheCalc( onTextResize );
 			});
-  		}
+		}
 
-  		if ( onWindowResize.length > 0 ) {
+		if ( onWindowResize.length > 0 ) {
 
 			utilities.addEvent(win, 'resize', function (){
 
 				dotheCalc( onWindowResize );
 			});
-  		}
+		}
 
-  	});
+	});
 
-  	// Libs and Helpers
+	// Libs and Helpers
 
-  	// import libs/contentloaded.js
-  	// import libs/raf.js
+	// import libs/contentloaded.js
+	// import libs/raf.js
 
 
 	})(window, document);
