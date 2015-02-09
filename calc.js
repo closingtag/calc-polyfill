@@ -1,409 +1,487 @@
 /*
-fillcalc v0.0.1 - (c) Robert Weber, freely distributable under the terms of the MIT license.
+fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the MIT license.
 */
 
 (function (win, doc) {
 
-  'use strict';
+	'use strict';
 
-  // We need document.querySelectorAll as we do not want depend on any lib
-  if (!doc.querySelectorAll) {
-    return;
-  }
+	// We need document.querySelectorAll as we do not want to depend on any lib
 
-  // Vars
+	if (!doc.querySelectorAll) {
+		return false;
+	}
 
-  var elements = {
-      onload: [],
-      onwinresize: [],
-      ontextresize: []
-  },
+	var
 
-  // Constants
+	EMPTY = '',
+	CALC_RULE = '^(\\s*?[\\s\\S]*):(\\s*?[\\s\\S]*?((\\-(webkit|moz)\\-)?calc\\(([\\s\\S]+)\\))[\\s\\S]*)?$',
+	CSSRULES = '((\\s*?@media[\\s\\S]*?){([\\s\\S]*?)}\\s*?})|(([\\s\\S]*?){([\\s\\S]*?)})',
 
-  EMPTY              = "",
-  CSS_COMMENT        = /(\/\*[^*]*\*+([^\/][^*]*\*+)*\/)\s*?/g,
-  NEW_LINE           = /\n/g,
-  CALC_RULE          = /\s?(\-webkit\-)?calc/,
-  CALC_EXTR_RULE     = /\s?(\-webkit\-)?calc\((.*?)\)/,
-  MATH_EXP           = /[\+\-\/\*]?\d+(px|%|em|rem)?/g,
-  PERCENT            = /\d+%/,
-  PIXEL              = /(\d+)px/g,
-  REMEM              = /\d+r?em/,
-  REM                = /\d+rem/,
-  EM                 = /\d+em/,
-  PLACEHOLDER        = "$1",
-  ONLYNUMBERS        = /[\s\-0-9]/g,
+    KEYFRAMES = new RegExp('((@.*?keyframes [\\s\\S]*?){([\\s\\S]*?}\\s*?)})', 'gi'),
+    FONTFACE = new RegExp('((@font-face\\s*?){([\\s\\S]*?)})', 'gi'),
+    COMMENTS = new RegExp('(\\/\\*[\\s\\S]*?\\*\\/)', 'gi'),
+    IMPORTS = new RegExp('@import .*?;', 'gi'),
+    CHARSET = new RegExp('@charset .*?;', 'gi'),
 
-  // Utilities
+	PERCENT = /\d+%/,
+	PT = /\d+pt/,
+    PIXEL = /(\d+)px/g,
+  	REMEM = /\d+r?em/,
+	REM = /\d+rem/,
+	EM = /\d+em/,
+	MATH_EXP = /[\+\-\/\*]?\d+(px|%|em|rem)?/g,
+	PLACEHOLDER = '$1',
+	ONLYNUMBERS = /[\s\-0-9]/g,
 
-  util = {
-    // http://stackoverflow.com/questions/2790001/fixing-javascript-array-functions-in-internet-explorer-indexof-foreach-etc
-    arr: {
-      forEach: function (arr, fn, opt) {
-        if (!('forEach' in Array.prototype)) {
-          for (var i= 0, n= arr.length; i<n; i++) {
-            if (i in arr) {
-              fn.call(opt, arr[i], i, arr);
-            }
-          }
-        } else {
-          arr.forEach(fn, opt);
-        }
-      }
+	FONTSIZE = 'font-size',
+	ADDMEDIA = '@media',
+
+	onTextResize = [],
+	onWindowResize = []
+	;
+
+	var utilities = {
+
+		camelize: function ( str ) {
+
+			return str.replace(/\-(\w)/g, function ( str, letter ) {
+
+				return letter.toUpperCase();
+			});
+		},
+
+		trim: function ( str ) {
+
+			var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
+
+			return !String.prototype.trim ? str.replace(rtrim, '') : str.trim();
+		},
+
+		indexOf: function ( arr, el, from ) {
+
+			var len = arr.length >>> 0;
+
+			from = Number(from) || 0;
+    		from = (from < 0) ? Math.ceil(from) : Math.floor(from);
+
+    		if (from < 0) {
+      			from += len;
+    		}
+
+    		for (; from < len; from++) {
+    			if (from in arr && arr[from] === el)
+        			return from;
+    		}
+
+    		return -1;
+		},
+
+		// http://www.quirksmode.org/dom/getstyles.html
+		getStyle: function ( el, prop ) {
+
+      		if (el.currentStyle) {
+
+				return el.currentStyle[utilities.camelize(prop)];
+			} else if (doc.defaultView && doc.defaultView.getComputedStyle) {
+
+				return doc.defaultView.getComputedStyle(el,null).getPropertyValue(prop);
+
+			} else {
+
+				return el.style[utilities.camelize(prop)];
+			}
+		},
+
+		// http://stackoverflow.com/questions/1955048/get-computed-font-size-for-dom-element-in-js
+		getFontsize: function (obj) {
+			var size;
+			var test = doc.createElement('span');
+
+			test.innerHTML = '&nbsp;';
+			test.style.position = 'absolute';
+			test.style.lineHeight = '1em';
+			test.style.fontSize = '1em';
+
+			obj.appendChild(test);
+			size = test.offsetHeight;
+			obj.removeChild(test);
+
+			return size;
+		},
+
+		addEvent: function ( el, type, fn ){
+
+			if (doc.addEventListener){
+
+				el.addEventListener(type, fn, false);
+			} else {
+
+				el.attachEvent('on' + type, fn);
+			}
+		},
+
+		// http://alistapart.com/article/fontresizing
+		// http://www.truerwords.net/articles/web-tech/custom_events.html
+		// https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent
+
+		textResize: function(cb) {
+
+			var el, currentSize;
+
+			var createControlElement = function () {
+
+				el = doc.createElement('span');
+        		el.id = 'text-resize-control';
+        		el.innerHTML = '&nbsp;';
+        		el.style.position = 'absolute';
+        		el.style.left = '-9999px';
+        		el.style.lineHeight = '1em';
+        		el.style.fontSize = '1em';
+
+        		doc.body.insertBefore(el, doc.body.firstChild);
+        		currentSize = el.offsetHeight;
+      		},
+
+      		detectChange = function () {
+
+      			var now = el.offsetHeight;
+
+				if ( currentSize === now ) {
+
+					win.requestAnimationFrame(detectChange);
+
+					return false;
+				}
+
+				currentSize = now;
+
+				if ( cb && typeof cb === 'function' ) {
+
+					cb();
+				}
+
+				win.requestAnimationFrame(detectChange);
+      		};
+
+			createControlElement();
+			win.requestAnimationFrame(detectChange);
+		}
+	};
+
+    var calcTest = function() {
+
+    	var el = document.createElement('div');
+
+    	el.style.cssText = 'width: -calc-calc(10px); width: -webkit-calc(10px); width: calc(10px)';
+
+    	return !!el.style.length;
     },
 
-    // http://www.quirksmode.org/dom/getstyles.html
-    // http://stackoverflow.com/questions/1955048/get-computed-font-size-for-dom-element-in-js
-    string: {
-      camelize: function (str) {
-        return str.replace(/\-(\w)/g, function (str, letter){
-          return letter.toUpperCase();
-        });
-      },
-      trim: function(str) {
-        
-        var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
 
-        return  !String.prototype.trim ? str.replace(rtrim, '') : str.trim();
-      }
-    },
+    getStyleSheets = function () {
 
-    style: {
-      get: function (el, prop) {
-        if (el.currentStyle) {
-          return el.currentStyle[util.string.camelize(prop)];
-        } else if (doc.defaultView && doc.defaultView.getComputedStyle) {
-          return doc.defaultView.getComputedStyle(el,null).getPropertyValue(prop);
-        } else {
-          return el.style[util.string.camelize(prop)];
-        }
-      },
-      get_font_size: function (obj) {
-        var font_size;
-        var test = doc.createElement('span');
-        test.innerHTML='&nbsp;';
-        test.style.position="absolute";
-        test.style.lineHeight="1";
-        test.style.fontSize="1em";
-        obj.appendChild(test);
-        font_size = test.offsetHeight;
-        obj.removeChild(test);
-        return font_size;
-      }
-    },
+    	var stylesheets = [];
+    	var index = 0;
+    	var len = doc.styleSheets.length;
+    	var stylesheet;
 
-    xhr: (function () {
-      if (win.XMLHttpRequest) {
-        return new XMLHttpRequest();
-      }
+    	for (; index < len; index++) {
 
-      try {
-        return new ActiveXObject('Microsoft.XMLHTTP');
-      } catch(e) {
-        return null;
-      }
+    		stylesheet = doc.styleSheets[index];
 
-    })(),
+    		if (stylesheet.href && stylesheet.href !== EMPTY) {
+    			stylesheets.push(stylesheet.href);
+    		}
+    	}
 
-    event :  {
-      add: function (el, type, fn){
-        if (doc.addEventListener){
-          el.addEventListener(type, fn, false);
-        } else {
-          el.attachEvent('on' + type, fn);
-        }
-      },
-      remove: function (el, type, fn){
-        if (document.removeEventListener){
-          el.removeEventListener(type, fn, false);
-        } else {
-          el.detachEvent('on' + type, fn);
-        }
-      },
-      /*!
-      * contentloaded.js
-      *
-      * Author: Diego Perini (diego.perini at gmail.com)
-      * Summary: cross-browser wrapper for DOMContentLoaded
-      * Updated: 20101020
-      * License: MIT
-      * Version: 1.2
-      *
-      * URL:
-      * http://javascript.nwbox.com/ContentLoaded/
-      * http://javascript.nwbox.com/ContentLoaded/MIT-LICENSE
-      *
-      */
+    	if ( stylesheets.length > 0 ) {
 
-      // @win window reference
-      // @fn function reference
-      content_loaded: function (win, fn) {
-        var done = false, top = true,
-        
-        doc = win.document, root = doc.documentElement,
-        add = doc.addEventListener ? 'addEventListener' : 'attachEvent',
-        rem = doc.addEventListener ? 'removeEventListener' : 'detachEvent',
-        pre = doc.addEventListener ? '' : 'on',
+    		loadStylesheets(stylesheets);
+    	}
+  	},
 
-        init = function (e) {
-          if (e.type == 'readystatechange' && doc.readyState != 'complete') return;
-          (e.type == 'load' ? win : doc)[rem](pre + e.type, init, false);
-          if (!done && (done = true)) fn.call(win, e.type || e);
-        },
+  	loadStylesheets = function(urls){
+  		var xhr;
+    	var index = 0;
+    	var len = urls.length;
+    	var cssTexts = [];
 
-        poll = function () {
-          try { root.doScroll('left'); } catch(e) { setTimeout(poll, 50); return; }
-          init('poll');
-        };
+      	if ( win.XMLHttpRequest ) {
 
-        if (doc.readyState == 'complete') fn.call(win, 'lazy');
-        else {
-          if (doc.createEventObject && root.doScroll) {
-            try { top = !win.frameElement; } catch(e) { }
-            if (top) poll();
-          }
-          doc[add](pre + 'DOMContentLoaded', init, false);
-          doc[add](pre + 'readystatechange', init, false);
-          win[add](pre + 'load', init, false);
-        }
-      }
-    },
+      		xhr = new XMLHttpRequest();
+      	}
+      	else {
 
-    // http://alistapart.com/article/fontresizing
-    // http://www.truerwords.net/articles/web-tech/custom_events.html
-    // https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent
+      		try {
 
-    text_resize: (function (){
-      var el, current_size, interval, e;
-      var detect_delay = 200;
+      			xhr = new ActiveXObject('Microsoft.XMLHTTP');
 
-      var create_control_element = function (){
-        el = doc.createElement('span');
-        el.id='text-resize-control';
-        el.innerHTML='&nbsp;';
-        el.style.position="absolute";
-        el.style.left="-9999px";
-        el.style.lineHeight="1";
-        el.style.fontSize="1em";
-        doc.body.insertBefore(el, doc.body.firstChild);
-        current_size = el.offsetHeight;
-      };
+      		} catch(e) {
 
-      var detect_change = function () {
-        var new_size = el.offsetHeight;
-        
-        if ( new_size !== current_size ) {
-          current_size = new_size;
+      			xhr = null;
+      		}
+      	}
 
-          if (e) {
-            doc.body.dispatchEvent(e);
-          }
-        }
-      };
+      	if (xhr) {
 
-      var create_event = function () {
-        if (!e) {
-          if (doc.createEvent) {
-            e = doc.createEvent('Event');
-            e.initEvent('textresize', true, true);
-          } else if (typeof Event === 'function') {
-            e = new Event('textresize');
-          }
-        }
-      };
+      		for (; index < len; index++) {
 
-      var start_detection = function (){
-        if (!interval) {
-          interval = win.setInterval(detect_change,detect_delay);
-        }
-      };
+      			try {
 
-      var stop_detection = function () {
-        win.clearInterval(interval);
-        interval = null;
-      };
+					xhr.open('GET', urls[index], false);
+					xhr.send();
 
-      return {
-        init: function () {
-          create_control_element();
-          create_event();
-        },
-        start: function () {
-          start_detection();
-        },
-        stop: function () {
-          stop_detection();
-        }
-      };
-    })()
-  },
+					if ( xhr.status === 200 ) {
+						cssTexts.push( xhr.responseText );
+					}
 
-  load_stylesheet = function (url) {
-    util.xhr.open("GET", url, false);
-    util.xhr.send();
+      			} catch(e) {
+      				console.log('Error making request for file ' + urls[index] + ': ' + e.message);
+      			}
 
-    return ( util.xhr.status==200 ) ? util.xhr.responseText : EMPTY;
-  },
+      		}
+      	}
 
-  parse_stylesheet = function (css_text) {
-    var rules = [];
+      	if (cssTexts.length > 0 ) {
+      		parseStylesheets(cssTexts);
+      	}
+  	},
 
-    css_text = css_text.replace(CSS_COMMENT, EMPTY).replace(NEW_LINE, EMPTY);
+  	parseStylesheets = function(texts) {
+    	var index = 0;
+    	var len = texts.length;
 
-    rules = css_text.split('}');
+    	for (; index < len; index++) {
 
-    util.arr.forEach(rules, function (rule){
-      var selector = rule.split('{')[0];
+    		texts[index] = texts[index].replace(COMMENTS, EMPTY).replace(CHARSET, EMPTY).replace(IMPORTS, EMPTY).replace(KEYFRAMES, EMPTY).replace(FONTFACE, EMPTY);
 
-      var dom_elements = selector.length > 1 ? doc.querySelectorAll(selector) : '';
+    		dotheCalc( parseCSS(texts[index]) );
+    	}
+  	},
 
-      var declarations = [];
-      var prop = "";
-      var values = "";
+  	removeStyles = function ( elements ) {
+  		var index = 0;
+  		var len = elements.length;
 
-      if (rule.match(CALC_RULE) && dom_elements.length !== 0) {
+		for (; index < len; index++) {
 
-        declarations = rule.split('{')[1].split(';');
+			elements[index].removeAttribute('style');
+		}
+  	},
 
-        util.arr.forEach(declarations, function (declaration){
-          if ( declaration.match(CALC_RULE) ) {
-            prop = declaration.split(':')[0];
-            values = declaration.split(':')[1];
-          }
-        });
+  	parseCSS = function( css, media ) {
 
-        for(var i = 0; i < dom_elements.length; i++) {
+    	var index, len, regex, result, selector, rules, calc, elements, obj, mediaQueryStyleSheet, refSheet;
+    	var arr = [];
 
-          if ( values.match(CALC_EXTR_RULE)[2].match(PERCENT) ) {
-            elements.onwinresize.push({
-              element: dom_elements[i],
-              prop: prop,
-              values: values
-            });
-          }
+    	media = media || '';
 
-          if ( values.match(CALC_EXTR_RULE)[2].match(REMEM) ) {
-            elements.ontextresize.push({
-              element: dom_elements[i],
-              prop: prop,
-              values: values
-            });
-          }
+    	regex = new RegExp(CSSRULES, 'gi');
 
-          if ( values.match(CALC_EXTR_RULE)[2].match(PIXEL) ) {
-            elements.onload.push({
-              element: dom_elements[i],
-              prop: prop,
-              values: values
-            });
-          }
-        }
-      }
+		while ( true ) {
 
-    });
-  },
+			result = regex.exec(css);
 
-  calc = function (obj){
-    var formula = obj.values.match(CALC_EXTR_RULE)[2].replace(PIXEL, PLACEHOLDER);
-    var matches = formula.match(MATH_EXP);
-    var result;
+			if ( result === null ) {
+				break;
+			}
 
-    if (matches) {
+			selector = utilities.trim( ( result[2] || result[5] ).split('\r\n').join('\n') );
 
-      util.arr.forEach(matches, function (match){
-        var reference_value, modifier, fontsize;
+			if ( selector.indexOf( ADDMEDIA ) !== -1 ) {
 
-        if ( match.match(PERCENT) ) {
-          reference_value = obj.element.parentNode.clientWidth;
+				rules = result[3] + '\n}';
 
-          modifier = parseInt(match, 10) / 100;
-          formula = formula.replace(match, reference_value * modifier);
-        }
+				arr = arr.concat(parseCSS(rules, selector.replace( ADDMEDIA, '')));
+			}
+			else {
 
-        if ( match.match(EM) ) {
+				rules = result[6].split('\r\n').join('\n').split(';');
 
-          if(obj.element.currentStyle) {
-            reference_value = util.style.get_font_size(obj.element);
-          } else {
-            reference_value = parseInt( util.style.get( obj.element, "font-size").replace(/px/, EMPTY ), 10);
-          }
-          
-          modifier = parseInt(match, 10);
-          formula = formula.replace(match, reference_value * modifier);
-        }
+				index = 0;
+				len = rules.length;
 
-        if ( match.match(REM) ) {
-          if ( util.style.get( doc.body , "font-size").match(PERCENT) ) {
-            reference_value = 16 * parseInt(util.style.get( doc.body , "font-size").replace(/%/, EMPTY), 10) / 100;
-          } else {
-            reference_value = parseInt( util.style.get( doc.body , "font-size").replace(/px/, EMPTY ), 10);
-          }
+				for (; index < len; index++) {
 
-          modifier = parseInt(match, 10);
-          formula = formula.replace(match, reference_value * modifier);
-        }
-      });
+					calc = new RegExp(CALC_RULE, 'gi').exec(rules[index]);
 
-    }
+					try {
+						elements = doc.querySelectorAll(selector);
+					}
+					catch(e) {
+						console.log('Error trying to select "' + selector + '": ' + e.message);
+						break;
+					}
 
-    try {
-      if ( formula.match(ONLYNUMBERS) ) {
-        result = eval( formula );
-      }
-      obj.element.style[util.string.trim(util.string.camelize(obj.prop))] = obj.values.replace(CALC_EXTR_RULE, " " + result + "px");
-    } catch(e) {}
-  },
+					if ( calc !== null && elements.length ) {
 
-  get_style_sheets = function () {
-    var url, stylesheet;
-    for (var c = 0; c < doc.styleSheets.length; c++) {
-      stylesheet = doc.styleSheets[c];
-      if (stylesheet.href && stylesheet.href != EMPTY) {
-        parse_stylesheet( load_stylesheet(stylesheet.href) );
-      }
-    }
-  };
+						obj = {
+							elements: elements,
+							media: media,
+							values: utilities.trim( calc[2] ),
+							formula: calc[6],
+							prop: utilities.trim( calc[1] ),
+							placholder: utilities.trim( calc[3] )
+						};
 
-  util.event.content_loaded(win, function (){
+						if ( obj.formula.match(PERCENT) ) {
+							obj.onresize = true;
+						}
 
-    get_style_sheets();
+						if ( obj.formula.match(REMEM) ) {
+							obj.ontextresize = true;
+						}
+
+						arr.push(obj);
+					}
+				}
+
+			}
+		}
+
+		return arr;
+  	},
+
+  	dotheCalc = function( calcRules ){
+    	var index = 0;
+    	var len = calcRules.length;
+    	var obj;
+
+    	var calc = function( obj ) {
+    		var i = 0;
+    		var len = obj.elements.length;
+    		var refValue, modifier, matches, l, j, result;
+
+    		var formula = obj.formula.replace(PIXEL, PLACEHOLDER);
+
+    		for (; i < len; i++) {
+
+    			matches = formula.match(MATH_EXP);
+    			l = matches.length;
+    			j = 0;
+
+    			for (; j < l; j++) {
+
+    				if ( matches[j].match(PERCENT) ) {
+
+          				refValue = obj.elements[i].parentNode.clientWidth;
+          				modifier = parseInt(matches[j], 10) / 100;
+        			}
+
+					if ( matches[j].match(EM) ) {
+
+						refValue = obj.elements[i].currentStyle ? utilities.getFontsize(obj.elements[i]) : parseInt( utilities.getStyle( obj.elements[i], FONTSIZE).replace(/px/, EMPTY ), 10);
+
+						if ( refValue.match && refValue.match(PT) ) {
+
+							refValue = Math.round( parseInt(refValue.replace(/pt/, ''), 10) * 1.333333333 );
+						}
+
+						modifier = parseInt(matches[j], 10);
+					}
+
+					if ( matches[j].match(REM) ) {
+
+						if ( utilities.getStyle( doc.body , FONTSIZE ).match(PERCENT) ) {
+
+							refValue = 16 * parseInt( utilities.getStyle( doc.body , FONTSIZE).replace(/%/, EMPTY), 10) / 100;
+						}
+						else if ( utilities.getStyle( doc.body , FONTSIZE ).match(PT) ) {
+
+							refValue = Math.round( parseInt(utilities.getStyle( doc.body , FONTSIZE).replace(/pt/, ''), 10) * 1.333333333 );
+						}
+						else {
+
+							refValue = parseInt( utilities.getStyle( doc.body , FONTSIZE).replace(/px/, EMPTY ), 10);
+						}
+
+						modifier = parseInt(matches[j], 10);
+					}
+
+					if ( modifier ) {
+						formula = formula.replace(matches[j], refValue * modifier);
+					}
+
+    			}
+
+				try {
+
+					if ( formula.match(ONLYNUMBERS) ) {
+
+						result = eval( formula );
+
+						obj.elements[i].style[ utilities.trim( utilities.camelize(obj.prop) ) ] = obj.values.replace(obj.placholder, result + 'px');
+					}
+				}
+				catch(e) {}
+
+    		}
+    	};
+
+    	for (; index < len; index++) {
+
+    		obj = calcRules[index];
+
+    		if ( obj.onresize && utilities.indexOf( onWindowResize, obj ) === -1 ) {
+
+    			onWindowResize.push(obj);
+    		}
+
+    		if ( obj.ontextresize && utilities.indexOf( onTextResize, obj ) === -1 ) {
+
+    			onTextResize.push(obj);
+    		}
+
+    		if ( obj.media !== EMPTY ) {
+
+    			if ( win.matchMedia && win.matchMedia(obj.media).matches ) {
+
+    				calc(obj);
+    			}
+    			else {
+
+    				removeStyles( obj.elements );
+    			}
+    		}
+    		else {
+
+    			calc(obj);
+    		}
+    	}
+
+  	};
+
+  	contentLoaded(win, function(){
+
+  		if ( calcTest() ) {
+  			return;
+  		}
+
+  		getStyleSheets();
+
+  		if ( onTextResize.length > 0 ) {
+
+			utilities.textResize(function(){
+
+				dotheCalc( onTextResize );
+			});
+  		}
+
+  		if ( onWindowResize.length > 0 ) {
+
+			utilities.addEvent(win, 'resize', function (){
+
+				dotheCalc( onWindowResize );
+			});
+  		}
+
+  	});
+
+  	// Libs and Helpers
+
+  	// import libs/contentloaded.js
+  	// import libs/raf.js
 
 
-    if (elements.onload.length !== 0) {
-
-      util.arr.forEach(elements.onload, function (element){
-
-        calc(element);
-      });
-    }
-
-    if (elements.onwinresize.length !== 0) {
-
-      util.arr.forEach(elements.onwinresize, function (element){
-
-        calc(element);
-
-        util.event.add(win, 'resize', function (){
-          calc(element);
-        });
-      });
-    }
-
-    if (elements.ontextresize.length !== 0) {
-
-      util.arr.forEach(elements.ontextresize, function (element){
-        calc(element);
-
-        util.event.add(doc.body, 'textresize', function (){
-          calc(element);
-        });
-
-        util.text_resize.init();
-        util.text_resize.start();
-
-      });
-    }
-  });
-
-})(window, document);
+	})(window, document);
