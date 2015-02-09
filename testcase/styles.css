@@ -1,0 +1,84 @@
+@charset "UTF-8";
+
+@import "import.css";
+
+@font-face{
+    font-family: 'CalligraphyFLFRegular';
+    src: url('CalligraphyFLF.eot');
+    src: local('CalligraphyFLF Regular'), local('CalligraphyFLF'), url('CalligraphyFLF.ttf') format('truetype');
+}
+
+
+@-webkit-keyframes fade-in {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+@-moz-keyframes fade-in {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+@-o-keyframes fade-in {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes fade-in {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	font-family: sans-serif;
+}
+
+h2 {
+	padding: 20px;
+	color: white;
+}
+
+.element {
+	height: 200px;
+	width: 500px;
+	margin-bottom: 100px;
+	padding: 0;
+	text-align: center;
+}
+
+.element1 {
+	width: calc(600px - 100px);
+	background: #ff6347;
+}
+
+.element2 {
+	width: calc(600px - 20%);
+	background: green;
+}
+
+.element3 {
+	font-size: 10px;
+  	width: calc(600px - 15em);
+  	background: blue;
+}
+
+.element4 {
+	width: calc(600px - 15rem);
+	padding: 20px calc(12px + 2em);
+	background: purple;
+}
+
+/* .element5 */
+
+.element:nth-of-type(5) {
+	width: calc(500px + 100px);
+	background: #cc0;
+}
+
+/* Comment for testing */
+
+@media screen and (min-width: 780px) {
+	.element6 {
+		width: calc(200px + 50%);
+		background: #0f0;
+	}
+}

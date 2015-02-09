@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html class="no-js">
+	<head>
+
+		<meta charset="utf-8">
+		<title>Polyfill for calc() test case</title>
+
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width">
+
+		<!-- Cross-Domain stylesheet -->
+		<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+
+		<link rel="stylesheet" href="styles.css">
+
+		<script src="../calc.min.js"></script>
+
+	</head>
+	<body>
+
+		<h1>Polyfill for calc() test case</h1>
+
+		<div class="element element1">
+			<h2>Element with only px values in calc for width</h2>
+
+		</div>
+
+		<div class="element element2">
+			<h2>Element with px and percent values in calc for width</h2>
+
+		</div>
+
+		<div class="element element3">
+			<h2>Element with px and em values in calc for width</h2>
+
+		</div>
+
+		<div class="element element4">
+			<h2>Element with px and rem values in calc for width</h2>
+
+		</div>
+
+		<div class="element element5">
+			<h2>Element with only px values in calc for width, but a selector which IE8 does not understand.</h2>
+
+		</div>
+
+		<div class="element element6">
+			<h2>Element with px and percent values in calc for width in media query</h2>
+
+		</div>
+
+	</body>
+	<script>
+		var width = document.body.clientWidth;
+		var bodySize = !window.getComputedStyle ? document.body.currentStyle.fontSize : window.getComputedStyle(document.body, null).getPropertyValue('font-size');
+		var element1 = document.querySelector('.element1');
+		var element2 = document.querySelector('.element2');
+		var element3 = document.querySelector('.element3');
+		var element4 = document.querySelector('.element4');
+		var element5 = document.querySelector('.element5');
+		var element6 = document.querySelector('.element6');
+
+		if ( bodySize.indexOf('pt') !== -1 ) {
+			bodySize = Math.round( parseInt(bodySize.replace(/pt/, ''), 10) * 1.333333333 );
+		}
+		else {
+			bodySize = parseInt(bodySize.replace(/px/, ''), 10);
+		}
+
+		window.setTimeout(function(){
+
+			console.log('Test 1: ' + ( element1.clientWidth == 500 ) );
+
+			console.log('Test 2: ' + ( element2.clientWidth === Math.round(600 - width * 0.2) ) );
+
+			console.log('Test 3: ' + ( element3.clientWidth === 450 ) );
+
+			console.log('Test 4: ' + ( element4.clientWidth === ( 2 * ( 12 + 2 * bodySize ) + 600 - 15 * bodySize ) ));
+
+			console.log('Test 5: ' + ( element5.clientWidth === 600 ) );
+
+			console.log('Test 6: ' + ( element6.clientWidth === Math.round(200 + width * 0.5) ) );
+
+
+		}, 3000)
+
+	</script>
+</html>
