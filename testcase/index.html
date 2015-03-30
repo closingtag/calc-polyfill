@@ -51,6 +51,10 @@
 
 		</div>
 
+		<div class="element element7">
+			<h2>Element with percentages and multiplication and division</h2>
+
+		</div>
 	</body>
 	<script>
 		var width = document.body.clientWidth;
@@ -61,6 +65,7 @@
 		var element4 = document.querySelector('.element4');
 		var element5 = document.querySelector('.element5');
 		var element6 = document.querySelector('.element6');
+		var element7 = document.querySelector('.element7');
 
 		if ( bodySize.indexOf('pt') !== -1 ) {
 			bodySize = Math.round( parseInt(bodySize.replace(/pt/, ''), 10) * 1.333333333 );
@@ -83,6 +88,7 @@
 
 			console.log('Test 6: ' + ( element6.clientWidth === Math.round(200 + width * 0.5) ) );
 
+			console.log('Test 7: ' + ( element7.clientWidth === Math.round(width * 0.25 + width * 0.08) ) );
 
 		}, 3000)
 

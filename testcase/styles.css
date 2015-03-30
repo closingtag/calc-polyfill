@@ -67,6 +67,13 @@ h2 {
 	background: purple;
 }
 
+.element7 {
+	width: calc(50% / 2);
+	padding: 20px calc(2% * 2);
+	background: purple;
+}
+
+
 /* .element5 */
 
 .element:nth-of-type(5) {

@@ -363,6 +363,8 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 
 				for (; j < l; j++) {
 
+					modifier = null;
+
 					if ( matches[j].match(PERCENT) ) {
 
 						refValue = obj.elements[i].parentNode.clientWidth;
