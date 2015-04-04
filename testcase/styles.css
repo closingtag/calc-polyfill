@@ -68,7 +68,7 @@ h2 {
 }
 
 .element7 {
-	width: calc(50% / 2);
+	width: calc(50.5% / 2);
 	padding: 20px calc(2% * 2);
 	background: purple;
 }

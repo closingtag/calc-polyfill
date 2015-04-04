@@ -24,13 +24,13 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 	IMPORTS = new RegExp('@import .*?;', 'gi'),
 	CHARSET = new RegExp('@charset .*?;', 'gi'),
 
-	PERCENT = /\d+%/,
+	PERCENT = /[\d\.]+%/,
 	PT = /\d+pt/,
 	PIXEL = /(\d+)px/g,
-	REMEM = /\d+r?em/,
-	REM = /\d+rem/,
-	EM = /\d+em/,
-	MATH_EXP = /[\+\-\/\*]?\d+(px|%|em|rem)?/g,
+	REMEM = /[\d\.]+r?em/,
+	REM = /[\d\.]+rem/,
+	EM = /[\d\.]+em/,
+	MATH_EXP = /[\+\-\/\*]?[\d\.]+(px|%|em|rem)?/g,
 	PLACEHOLDER = '$1',
 	ONLYNUMBERS = /[\s\-0-9]/g,
 
@@ -368,7 +368,8 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 					if ( matches[j].match(PERCENT) ) {
 
 						refValue = obj.elements[i].parentNode.clientWidth;
-						modifier = parseInt(matches[j], 10) / 100;
+
+						modifier = parseFloat(matches[j], 10) / 100;
 					}
 
 					if ( matches[j].match(EM) ) {
@@ -380,7 +381,7 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 							refValue = Math.round( parseInt(refValue.replace(/pt/, ''), 10) * 1.333333333 );
 						}
 
-						modifier = parseInt(matches[j], 10);
+						modifier = parseFloat(matches[j], 10);
 					}
 
 					if ( matches[j].match(REM) ) {
@@ -398,7 +399,7 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 							refValue = parseInt( utilities.getStyle( doc.body , FONTSIZE).replace(/px/, EMPTY ), 10);
 						}
 
-						modifier = parseInt(matches[j], 10);
+						modifier = parseFloat(matches[j], 10);
 					}
 
 					if ( modifier ) {
