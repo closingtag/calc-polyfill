@@ -351,12 +351,11 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 		var calc = function( obj ) {
 			var i = 0;
 			var len = obj.elements.length;
-			var refValue, modifier, matches, l, j, result;
-
-			var formula = obj.formula.replace(PIXEL, PLACEHOLDER);
+			var refValue, modifier, matches, l, j, result, formula;
 
 			for (; i < len; i++) {
 
+				formula = obj.formula.replace(PIXEL, PLACEHOLDER);
 				matches = formula.match(MATH_EXP);
 				l = matches.length;
 				j = 0;
