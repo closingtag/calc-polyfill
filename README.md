@@ -65,6 +65,5 @@ There is currently no support for libs like [respond.js](https://github.com/scot
 ## To Do
 
 * more Android testing
-* consider inline styles
 * consider imported CSS files wie ``@import``
 

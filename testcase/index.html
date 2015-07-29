@@ -14,6 +14,14 @@
 
 		<link rel="stylesheet" href="styles.css">
 
+		<style>
+			.element8 {
+				font-size: 10px;
+			  	width: calc(600px - 15em);
+			  	background: rebeccapurple;
+			}
+		</style>
+
 		<script src="../calc.min.js"></script>
 
 	</head>
@@ -55,6 +63,12 @@
 			<h2>Element with decimal percentages and multiplication and division</h2>
 
 		</div>
+
+		<div class="element element8">
+			<h2>Element with px and em values in calc for width. Inline style</h2>
+		</div>
+
+
 	</body>
 	<script>
 		var width = document.body.clientWidth;
@@ -66,6 +80,7 @@
 		var element5 = document.querySelector('.element5');
 		var element6 = document.querySelector('.element6');
 		var element7 = document.querySelector('.element7');
+		var element8 = document.querySelector('.element8');
 
 		if ( bodySize.indexOf('pt') !== -1 ) {
 			bodySize = Math.round( parseInt(bodySize.replace(/pt/, ''), 10) * 1.333333333 );
@@ -89,6 +104,8 @@
 			console.log('Test 6: ' + ( element6.clientWidth === Math.round(200 + width * 0.5) ) );
 
 			console.log('Test 7: ' + ( element7.clientWidth === Math.round(width * 0.2525 + width * 0.08) ) );
+
+			console.log('Test 8: ' + ( element3.clientWidth === 450 ) );
 
 		}, 3000)
 

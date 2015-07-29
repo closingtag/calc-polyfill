@@ -38,7 +38,8 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 	ADDMEDIA = '@media',
 
 	onTextResize = [],
-	onWindowResize = []
+	onWindowResize = [],
+	cssTexts = []
 	;
 
 	var utilities = {
@@ -189,11 +190,19 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 		for (; index < len; index++) {
 
 			stylesheet = doc.styleSheets[index];
+			cssTexts[index] = '';
 
 			if (stylesheet.href && stylesheet.href !== EMPTY) {
+
 				stylesheets.push(stylesheet.href);
 			}
+
+			if ( stylesheet.ownerNode && stylesheet.ownerNode.nodeName.toLowerCase() === 'style' ) {
+
+				cssTexts[index] = stylesheet.ownerNode.textContent;
+			}
 		}
+
 
 		if ( stylesheets.length > 0 ) {
 
@@ -205,7 +214,6 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 		var xhr;
 		var index = 0;
 		var len = urls.length;
-		var cssTexts = [];
 
 		if ( win.XMLHttpRequest ) {
 
@@ -233,7 +241,7 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 					xhr.send();
 
 					if ( xhr.status === 200 ) {
-						cssTexts.push( xhr.responseText );
+						cssTexts[index] =  xhr.responseText;
 					}
 
 				} catch(e) {
@@ -244,6 +252,7 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 		}
 
 		if (cssTexts.length > 0 ) {
+
 			parseStylesheets(cssTexts);
 		}
 	},
@@ -254,9 +263,12 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 
 		for (; index < len; index++) {
 
-			texts[index] = texts[index].replace(COMMENTS, EMPTY).replace(CHARSET, EMPTY).replace(IMPORTS, EMPTY).replace(KEYFRAMES, EMPTY).replace(FONTFACE, EMPTY);
+			if ( texts[index].length ) {
 
-			dotheCalc( parseCSS(texts[index]) );
+				texts[index] = texts[index].replace(COMMENTS, EMPTY).replace(CHARSET, EMPTY).replace(IMPORTS, EMPTY).replace(KEYFRAMES, EMPTY).replace(FONTFACE, EMPTY);
+
+				dotheCalc( parseCSS(texts[index]) );
+			}
 		}
 	},
 
