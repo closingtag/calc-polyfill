@@ -40,11 +40,22 @@ module.exports = function(grunt) {
 					}
 				]
 			}
-		}
+		},
+	    watch: {
+			options: {
+				spawn: true
+			},
+			js: {
+				files: ['calc.js', '!libs/**/*.js'],
+				tasks: ['jshint', 'includes:dist', 'uglify:dist']
+			}
+	    },
+
 	});
 
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
+	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-includes');
 
 	grunt.registerTask('default', ['jshint', 'includes:dist', 'uglify:dist']);
