@@ -58,6 +58,10 @@ This polyfill also does not detect any resetting of calc():
 
 The polyfill will apply the rules from the first as it is not detecting the resetting of the width in the second.
 
+### Inline Styles
+
+Support for polyfilling inline styles is integrated. However right now there seems no way to get the unparsed contents of a ``<style />`` element in IE8 and therefore the polyfill will not work there. IF you find a way to do this let me now or make a PR.
+
 ### Media-Queries
 
 There is currently no support for libs like [respond.js](https://github.com/scottjehl/Respond) and it is not planned to add support. However the polyfill uses ``window.matchMedia`` to test for media queries. If you wish to add support for media queries for IE8 include a [polyfill](https://github.com/paulirish/matchMedia.js/) before the calc-polyfill.
