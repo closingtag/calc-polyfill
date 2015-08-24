@@ -43,6 +43,7 @@ h2 {
 	margin-bottom: 100px;
 	padding: 0;
 	text-align: center;
+	border: 1px solid red;
 }
 
 .element1 {

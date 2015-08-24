@@ -18,11 +18,11 @@
 			.element8 {
 				font-size: 10px;
 			  	width: calc(600px - 15em);
-			  	background: rebeccapurple;
+			  	background: #0f3;
 			}
 		</style>
 
-		<script src="../calc.min.js"></script>
+
 
 	</head>
 	<body>
@@ -70,6 +70,7 @@
 
 
 	</body>
+	<script src="../calc.min.js"></script>
 	<script>
 		var width = document.body.clientWidth;
 		var bodySize = !window.getComputedStyle ? document.body.currentStyle.fontSize : window.getComputedStyle(document.body, null).getPropertyValue('font-size');
@@ -82,6 +83,8 @@
 		var element7 = document.querySelector('.element7');
 		var element8 = document.querySelector('.element8');
 
+		var log = '';
+
 		if ( bodySize.indexOf('pt') !== -1 ) {
 			bodySize = Math.round( parseInt(bodySize.replace(/pt/, ''), 10) * 1.333333333 );
 		}
@@ -91,21 +94,23 @@
 
 		window.setTimeout(function(){
 
-			console.log('Test 1: ' + ( element1.clientWidth == 500 ) );
+			log += 'Test 1: ' + ( element1.clientWidth == 500 ) + '\n' ;
 
-			console.log('Test 2: ' + ( element2.clientWidth === Math.round(600 - width * 0.2) ) );
+			log += 'Test 2: ' + ( element2.clientWidth === Math.round(600 - width * 0.2) ) + '\n' ;
 
-			console.log('Test 3: ' + ( element3.clientWidth === 450 ) );
+			log += 'Test 3: ' + ( element3.clientWidth === 450 ) + '\n' ;
 
-			console.log('Test 4: ' + ( element4.clientWidth === ( 2 * ( 12 + 2 * bodySize ) + 600 - 15 * bodySize ) ));
+			log += 'Test 4: ' + ( element4.clientWidth === ( 2 * ( 12 + 2 * bodySize ) + 600 - 15 * bodySize ) )+ '\n' ;
 
-			console.log('Test 5: ' + ( element5.clientWidth === 600 ) );
+			log += 'Test 5: ' + ( element5.clientWidth === 600 ) + '\n' ;
 
-			console.log('Test 6: ' + ( element6.clientWidth === Math.round(200 + width * 0.5) ) );
+			log += 'Test 6: ' + ( element6.clientWidth === Math.round(200 + width * 0.5) ) + '\n' ;
 
-			console.log('Test 7: ' + ( element7.clientWidth === Math.round(width * 0.2525 + width * 0.08) ) );
+			log += 'Test 7: ' + ( element7.clientWidth === Math.round(width * 0.2525 + width * 0.08) ) + '\n' ;
 
-			console.log('Test 8: ' + ( element3.clientWidth === 450 ) );
+			log += 'Test 8: ' + ( element8.clientWidth === 450 ) + '\n' ;
+
+			console.log(log);
 
 		}, 3000)
 
