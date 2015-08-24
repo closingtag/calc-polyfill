@@ -494,8 +494,8 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 
 	// Libs and Helpers
 
-	// import libs/contentloaded.js
-	// import libs/raf.js
+	// import libs/contentloaded/src/contentloaded.js
+	// import libs/requestAnimationFrame/app/requestAnimationFrame.js
 
 
 	})(window, document);
