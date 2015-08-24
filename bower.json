@@ -20,5 +20,9 @@
     "bower_components",
     "test",
     "tests"
-  ]
+  ],
+  "dependencies": {
+    "contentloaded": "*",
+    "requestAnimationFrame": "~0.0.22"
+  }
 }
