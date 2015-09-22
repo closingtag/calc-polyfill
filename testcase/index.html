@@ -22,7 +22,7 @@
 			}
 		</style>
 
-
+		<script src="../calc.min.js"></script>
 
 	</head>
 	<body>
@@ -70,7 +70,6 @@
 
 
 	</body>
-	<script src="../calc.min.js"></script>
 	<script>
 		var width = document.body.clientWidth;
 		var bodySize = !window.getComputedStyle ? document.body.currentStyle.fontSize : window.getComputedStyle(document.body, null).getPropertyValue('font-size');
@@ -82,6 +81,10 @@
 		var element6 = document.querySelector('.element6');
 		var element7 = document.querySelector('.element7');
 		var element8 = document.querySelector('.element8');
+
+		var element9 = document.createElement('div');
+		element9.className = 'element9';
+		element9.innerHTML = '<h2>Element with px and percent values in calc for width</h2>';
 
 		var log = '';
 
@@ -109,6 +112,11 @@
 			log += 'Test 7: ' + ( element7.clientWidth === Math.round(width * 0.2525 + width * 0.08) ) + '\n' ;
 
 			log += 'Test 8: ' + ( element8.clientWidth === 450 ) + '\n' ;
+
+			document.body.appendChild(element9);
+			window.dotheCalc();
+
+			log += 'Test 9: ' + ( element9.clientWidth === Math.round(600 - width * 0.2) ) + '\n' ;
 
 			console.log(log);
 

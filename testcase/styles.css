@@ -51,6 +51,7 @@ h2 {
 	background: #ff6347;
 }
 
+.element9,
 .element2 {
 	width: calc(600px - 20%);
 	background: green;
@@ -73,7 +74,6 @@ h2 {
 	padding: 20px calc(2% * 2);
 	background: purple;
 }
-
 
 /* .element5 */
 

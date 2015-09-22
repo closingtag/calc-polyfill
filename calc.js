@@ -6,6 +6,25 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 
 	'use strict';
 
+	// Avoid `console` errors in browsers that lack a console.
+	(function() {
+		var method;
+		var noop = function () {};
+		var methods = ['assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error','exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log','markTimeline', 'profile', 'profileEnd', 'table', 'time', 'timeEnd','timeline', 'timelineEnd', 'timeStamp', 'trace', 'warn'];
+
+		var length = methods.length;
+		var console = (window.console = window.console || {});
+
+		while (length--) {
+			method = methods[length];
+
+			// Only stub undefined methods.
+			if (!console[method]) {
+				console[method] = noop;
+			}
+		}
+	}());
+
 	// We need document.querySelectorAll as we do not want to depend on any lib
 
 	if (!doc.querySelectorAll) {
@@ -490,6 +509,15 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 			});
 		}
 
+		// Public interface
+		window.dotheCalc = function() {
+
+			if (cssTexts.length > 0 ) {
+
+				parseStylesheets(cssTexts);
+			}
+		}
+		;
 	});
 
 	// Libs and Helpers
