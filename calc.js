@@ -58,7 +58,8 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 
 	onTextResize = [],
 	onWindowResize = [],
-	cssTexts = []
+	cssTexts = [],
+	docLoaded = false
 	;
 
 	var utilities = {
@@ -485,11 +486,23 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 
 	};
 
+	// Public interface
+	win.dotheCalc = function() {
+
+		if (cssTexts.length > 0 && docLoaded) {
+
+			parseStylesheets(cssTexts);
+		}
+	};
+
+
 	contentLoaded(win, function(){
 
 		if ( calcTest() ) {
 			return;
 		}
+
+		docLoaded = true;
 
 		getStyleSheets();
 
@@ -508,16 +521,6 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 				dotheCalc( onWindowResize );
 			});
 		}
-
-		// Public interface
-		window.dotheCalc = function() {
-
-			if (cssTexts.length > 0 ) {
-
-				parseStylesheets(cssTexts);
-			}
-		}
-		;
 	});
 
 	// Libs and Helpers
@@ -526,4 +529,4 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 	// import libs/requestAnimationFrame/app/requestAnimationFrame.js
 
 
-	})(window, document);
+})(window, document);
