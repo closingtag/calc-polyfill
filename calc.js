@@ -298,7 +298,10 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 
 		for (; index < len; index++) {
 
-			elements[index].removeAttribute('style');
+			if ( !JSON.parse(elements[index].getAttribute('data-calced')) ) {
+
+				elements[index].removeAttribute('style');
+			}
 		}
 	},
 
@@ -445,7 +448,8 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 
 						result = eval( formula );
 
-						obj.elements[i].style[ utilities.trim( utilities.camelize(obj.prop) ) ] = obj.values.replace(obj.placholder, result + 'px');
+						obj.elements[i].style[ utilities.trim( utilities.camelize(obj.prop) ) ] = obj.values.replace(obj.placholder,  result + 'px');
+						obj.elements[i].setAttribute('data-calced', true);
 					}
 				}
 				catch(e) {}

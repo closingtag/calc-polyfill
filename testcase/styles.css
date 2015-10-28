@@ -61,6 +61,11 @@ h2 {
 	background: purple;
 }
 
+.element6 {
+	width: calc(200px + 75%);
+	background: #0f0;
+}
+
 .element7 {
 	width: calc(50.5% / 2);
 	padding: 20px calc(2% * 2);
@@ -76,9 +81,16 @@ h2 {
 
 /* Comment for testing */
 
-@media screen and (min-width: 780px) {
+@media screen and (max-width: 780px) {
 	.element6 {
 		width: calc(200px + 50%);
+		background: #0f0;
+	}
+}
+
+@media screen and (min-width: 840px) {
+	.element6 {
+		width: calc(200px + 30%);
 		background: #0f0;
 	}
 }
