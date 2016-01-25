@@ -7,9 +7,15 @@ module.exports = function(grunt) {
 				banner: '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n'
 			},
 			dist: {
-				files: {
-					'calc.min.js': ['calc.min.js']
-				}
+				files: [
+					{
+						expand: true,
+						cwd: 'dist/',
+						src: ['**/*.js'],
+						dest: 'dist/',
+						ext: '.min.js'
+					}
+				]
 			}
 		},
 		jshint: {
@@ -34,9 +40,9 @@ module.exports = function(grunt) {
 				files: [
 					{
 					expand: true,
-
 					src: ['calc.js', '!libs/**/*.js'],
-					ext: '.min.js'
+					dest: 'dist/',
+					ext: '.js'
 					}
 				]
 			}

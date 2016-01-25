@@ -1,12 +1,12 @@
 {
   "name": "calc-polyfill",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homepage": "https://github.com/closingtag/calc-polyfill",
   "authors": [
     "Robert Weber <closingtag@gmail.com>"
   ],
   "description": "A Polyfill for CSS3 calc()",
-  "main": "calc.min.js",
+  "main": "dist/calc.min.js",
   "keywords": [
     "css3",
     "calc",
