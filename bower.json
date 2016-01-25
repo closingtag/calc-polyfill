@@ -21,8 +21,10 @@
     "test",
     "tests"
   ],
-  "dependencies": {
+  "devDependencies": {
+    "jquery": "1.12.0",
     "contentloaded": "*",
-    "requestAnimationFrame": "~0.0.22"
+    "requestAnimationFrame": "~0.0.22",
+    "selectivizr": "https://raw.githubusercontent.com/keithclark/selectivizr/master/selectivizr.js"
   }
 }

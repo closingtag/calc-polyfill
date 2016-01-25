@@ -214,10 +214,18 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 
 			if (stylesheet.href && stylesheet.href !== EMPTY) {
 
-				stylesheets.push(stylesheet.href);
-			}
+				// selectivzr support - see issue #23
+				// http://selectivizr.com/tests/respond/
+				if (stylesheet.rawCssText && stylesheet.rawCssText !== EMPTY) {
 
-			if ( stylesheet.ownerNode && stylesheet.ownerNode.nodeName.toLowerCase() === 'style' ) {
+					cssTexts[index] = stylesheet.rawCssText;
+				}
+				else {
+
+					stylesheets.push(stylesheet.href);
+				}
+			}
+			else if ( stylesheet.ownerNode && stylesheet.ownerNode.nodeName.toLowerCase() === 'style' ) {
 
 				cssTexts[index] = stylesheet.ownerNode.textContent;
 			}
