@@ -224,7 +224,7 @@ fillcalc v0.1.0 - (c) Robert Weber, freely distributable under the terms of the 
 		}
 
 
-		if ( stylesheets.length > 0 || cssTexts.length > 0 ) {
+		if ( stylesheets.length > 0 || cssTexts.length > 0 ) {
 
 			loadStylesheets(stylesheets);
 		}
